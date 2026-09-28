@@ -1,0 +1,5 @@
+from pypdf import PdfReader
+
+reader = PdfReader("INPUT/Herrold_Interim_Trust_5th_Amendment_Herrold_Trust.pdf")
+text = "\n\n".join(page.extract_text() for page in reader.pages)
+open("OUTPUT/herrold_5th_amendment.txt", "w").write(text)
