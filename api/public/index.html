@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CaneTrust AI</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 520px; margin: 60px auto; padding: 0 16px; color: #1a1a1a; }
+  h1 { font-size: 1.5rem; margin-bottom: 4px; }
+  p.sub { color: #666; margin-top: 0; }
+  label { display: block; margin: 16px 0 6px; font-weight: 600; font-size: .9rem; }
+  input { width: 100%; padding: 8px; box-sizing: border-box; }
+  button { margin-top: 20px; padding: 10px 18px; background: #005030; color: #fff; border: 0; border-radius: 6px; cursor: pointer; }
+  button:disabled { opacity: .5; cursor: wait; }
+  #msg { margin-top: 16px; }
+</style>
+</head>
+<body>
+  <h1>CaneTrust AI</h1>
+  <p class="sub">Upload a trust or amendment PDF. You'll get a filled annotation spreadsheet to review.</p>
+
+  <form id="form">
+    <label for="file">Trust document (PDF)</label>
+    <input id="file" name="file" type="file" accept=".pdf" required>
+
+    <label for="label">Document label</label>
+    <input id="label" name="label" value="Trust document">
+
+    <label for="status">Legal status</label>
+    <input id="status" name="status" value="OPERATIVE">
+
+    <button type="submit">Generate annotation</button>
+  </form>
+  <div id="msg"></div>
+
+<script>
+const form = document.getElementById("form");
+const msg = document.getElementById("msg");
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = form.querySelector("button");
+  btn.disabled = true;
+  msg.textContent = "Working on it. Long documents can take a few minutes.";
+  try {
+    const res = await fetch("/api/annotate", { method: "POST", body: new FormData(form) });
+    if (!res.ok) throw new Error(await res.text());
+    const blob = await res.blob();
+    const name = (res.headers.get("Content-Disposition") || "").match(/filename="(.+)"/)?.[1] || "annotation.xlsx";
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+    msg.textContent = "Done. Your download should start.";
+  } catch (err) {
+    msg.textContent = "Something went wrong: " + err.message;
+  } finally {
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
