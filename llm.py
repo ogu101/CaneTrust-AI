@@ -114,7 +114,7 @@ def analyze_document(
 
     raw = tool_use_blocks[0].input
 
-    debug_path = Path(__file__).parent / "out" / "last_raw_output.json"
+    debug_path = Path("/tmp") / "last_raw_output.json"
     debug_path.parent.mkdir(parents=True, exist_ok=True)
     debug_path.write_text(json.dumps(raw, indent=2))
     print(f"[debug] wrote raw tool output to {debug_path}")
